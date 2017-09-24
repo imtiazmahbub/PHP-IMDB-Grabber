@@ -68,6 +68,10 @@ class IMDB
     const IMDB_LOCATION      = '~href="\/search\/title\?locations=(.*)">(.*)<\/a>~Ui';
 
     const IMDB_MPAA          = '~<h5><a href="\/mpaa">MPAA<\/a>:<\/h5>(?:\s*)<div class="info-content">(.*)<\/div>~Ui';
+	
+    //const IMDB_RECS          = '~If you enjoyed this title, our database also recommends:(?:\s*)<table class="recs">(?:\s*)(.*)<\/table>~Ui';
+    //const IMDB_RECS          = '~<div class="strip">If you enjoyed this title, our database also recommends:(?:\s*)(?:\s*)(.*)<\/div>~Ui';
+    const IMDB_RECS          = '~<div class="strip">If you enjoyed this title, our database also recommends:(?:\s*)(?:\s*)(.*)<a href="\/title\/tt.*\/recommendations">Show more recommendations<\/a><\/div>~Ui';
 
     const IMDB_NAME          = '~href="\/name\/(.*)\/"(?:.*)>(.*)<\/a>~Ui';
 
@@ -127,7 +131,7 @@ class IMDB
     /**
      * @var string Char that separates multiple entries.
      */
-    public $sSeparator = ' / ';
+    public $sSeparator = ', ';
 
     /**
      * @var null|string The URL to the movie.
@@ -368,6 +372,8 @@ class IMDB
                                             'value' => $this->getLocation()];
         $aData['MPAA']                   = ['name'  => 'MPAA',
                                             'value' => $this->getMpaa()];
+        $aData['Recommendations']        = ['name'  => 'Recommendations',
+                                            'value' => $this->getRecommendations()];
         $aData['PlotKeywords']           = ['name'  => 'Plot Keywords',
                                             'value' => $this->getPlotKeywords()];
         $aData['Plot']                   = ['name'  => 'Plot',
@@ -903,6 +909,25 @@ class IMDB
     }
 
     /**
+     * @return string The Content RatinG of the movie or $sNotFound.
+     */
+    public function getRecommendations() {
+        if (true === $this->isReady) {
+			/* $data = $this->sSource; // your HTML data from the question
+			preg_match( '/<span itemprop="contentRating">(.*?)<\/span>/', $data, $match );
+			return $data; */
+			
+            $sMatch = IMDBHelper::matchRegex($this->sSource, self::IMDB_RECS, 1);
+            if (false !== $sMatch) {
+                return $sMatch;
+                //return IMDBHelper::cleanString($sMatch);
+            }
+        }
+
+        return self::$sNotFound;
+    }
+
+    /**
      * @return string A list with the plot keywords or $sNotFound.
      */
     public function getPlotKeywords() {
@@ -948,7 +973,10 @@ class IMDB
         if (true === $this->isReady) {
             $sMatch = IMDBHelper::matchRegex($this->sSource, self::IMDB_POSTER, 1);
             if (false !== $sMatch) {
-                if ('big' === strtolower($sSize) && false !== strstr($sMatch, '@._')) {
+                if ('medium' === strtolower($sSize) && false !== strstr($sMatch, '@._')) {
+                    $sMatch = substr($sMatch, 0, strpos($sMatch, '@._')) . '@._SX300.jpg';
+					
+                } elseif ('big' === strtolower($sSize) && false !== strstr($sMatch, '@._')) {
                     $sMatch = substr($sMatch, 0, strpos($sMatch, '@._')) . '@.jpg';
                 }
                 if (false === $bDownload) {
