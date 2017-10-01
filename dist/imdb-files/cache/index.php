@@ -1,0 +1,2 @@
+<?php
+// silent, but lethal!

@@ -3,6 +3,7 @@
 .idea/
 .LSOverride
 cache/*.cache
+cache-json/*.json
 cache/*.fullcast
 cache/*.redir
 composer.phar
@@ -10,3 +11,9 @@ Desktop.ini
 posters/*.jpg
 Thumbs.db
 vendor/
+
+dist/imdb-files/cache/*.cache
+dist/imdb-files/cache-json/*.json
+dist/imdb-files/cache/*.fullcast
+dist/imdb-files/cache/*.redir
+dist/imdb-files/posters/*

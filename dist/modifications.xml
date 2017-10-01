@@ -1,0 +1,451 @@
+<hack>
+  <title>XBTIT IMDB Grabber by Imtiaz</title>
+  <author>Imtiaz</author>
+  <version>beta.01</version>
+<!-- database -->
+<file>
+    <name>"database"</name>
+    <operation>
+      <action>sql</action>
+      <data>ALTER TABLE `{$db_prefix}files` ADD `imdb_id` varchar(10) NOT NULL default '0';</data>
+    </operation>
+</file>
+
+<!-- database: TO DO: CREATE ONE MORE OPERATION FOR CREATING THE IMDB_INFO TABLE-->
+
+
+<!-- index.php -->
+<file>
+    <name>"$DEFAULT_ROOT/index.php"</name>
+    <operation>
+		<search><![CDATA[global $language]]></search>
+		<action>"replace"</action>
+		<data><![CDATA[$POS_READY=array();
+global $language, $POS_READY]]></data>
+	</operation>
+    <operation>
+		<search><![CDATA[// controll if client can handle gzip]]></search>
+		<action>"add"</action>
+		<where>"before"</where>
+		<data><![CDATA[
+$tpl->set("POS_READY", implode(PHP_EOL, $POS_READY));
+]]></data>
+	</operation>
+</file>
+
+<!-- main.tpl -->
+<file>
+    <name>"$DEFAULT_STYLE_PATH/main.tpl"</name>
+    <operation>
+		<search><![CDATA[</body>]]></search>
+		<action>"add"</action>
+		<where>"before"</where>
+		<data><![CDATA[	<script>
+	$(document).ready(function(){
+	<tag:POS_READY />
+	});
+	</script>]]></data>
+	</operation>
+</file>
+
+<!-- torrent.list.tpl -->
+ <file>
+    <name>"$DEFAULT_STYLE_PATH/torrent.list.tpl"</name>
+    <operation>
+      <search><![CDATA[</form>]]></search>
+      <action>"add"</action>
+      <where>"before"</where>
+      <data><![CDATA[
+  <br/>
+  <table class="table table-bordered">
+	<thead>
+		<th style="width:150px;">IMDB ID</th>
+		<th>Genres</th>
+		<th>Year</th>
+		<th style="min-width:110px;">Rating ></th>
+		<th>Plot Keywords</th>
+		<th>AKA</th>
+		<th>Director</th>
+		<th>Writer</th>
+		<th>Cast</th>
+	</thead>
+	<tbody>
+		<tr>
+			<td>
+				<div class="input-group input-group-sm">
+				  <span class="input-group-addon" id="imdb_id">tt</span>
+				  <input type="number" name="imdb_id" value="<tag:imdb_id />" class="form-control" placeholder="IMDB ID" aria-describedby="imdb_id">
+				</div>
+			</td>
+			<td><input type="text" class="form-control input-sm" name="imdb_genre" value="<tag:imdb_genre />" placeholder="Genres"></td>
+			<td><input type="number" class="form-control input-sm" name="imdb_year" value="<tag:imdb_year />" placeholder="year"></td>
+			<td><input type="number" class="form-control input-sm" name="imdb_rating" value="<tag:imdb_rating />" placeholder="x.x" step="0.01" min="0" max="10"></td>
+			<td><input type="text" class="form-control input-sm" name="imdb_plot" value="<tag:imdb_plot />" placeholder=""></td>
+			<td><input type="text" class="form-control input-sm" name="imdb_aka" value="<tag:imdb_aka />" placeholder="aka"></td>
+			<td><input type="text" class="form-control input-sm" name="imdb_director" value="<tag:imdb_director />" placeholder="Spielberg"></td>
+			<td><input type="text" class="form-control input-sm" name="imdb_writer" value="<tag:imdb_writer />" placeholder="Stan Lee"></td>
+			<td><input type="text" class="form-control input-sm" name="imdb_cast" value="<tag:imdb_cast />" placeholder=""></td>
+		</tr>
+		<tr>
+			<td colspan="9">
+				<div class="container-fluid">
+					<button class="btn btn-primary" style="padding:5px; color:#fff; background-color:#4c77B6; border-radius:0;" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+					  Show Help
+					</button>
+					<div class="collapse" id="collapseExample">
+					  <div class="row">
+						<div class="col-md-6">
+							<h5>IMDB ID</h5>
+							<p>Does an exact match of an integer of 7 digits <span class="pull-right">Data Logic: equal</span></p>
+						</div>
+						<div class="col-md-6">
+							<h5>Genres</h5>
+							<p>You can search multiple genres by comma separating them. <span class="pull-right">Data Logic: OR</span></p>
+						</div>
+						<div class="col-md-6">
+							<h5>Year of Release</h5>
+							<p>Does an exact match of any 4 digit long year. <span class="pull-right">Data Logic: equal</span></p>
+						</div>
+						<div class="col-md-6">
+							<h5>Rating</h5>
+							<p>Greater than the given rating. must be a float or integer. <span class="bg-warning">0 > Rating > 10</span> <span class="pull-right">Data Logic: greater than</span></p>
+						</div>
+						<div class="col-md-6">
+							<h5>Plot Keywords</h5>
+							<p>Like Gnere, it finds all possible matches of given keywords <span class="pull-right">Data Logic: OR</span></p>
+						</div>
+						<div class="col-md-6">
+							<h5>Directors</h5>
+							<p>Finds all movies/shows of given Directors. Separate multiple of them with comma. <span class="pull-right">Data Logic: AND</span></p>
+						</div>
+						<div class="col-md-6">
+							<h5>Writers</h5>
+							<p>Finds all movies/shows of given Writers. Separate multiple of them with comma. <span class="pull-right">Data Logic: AND</span></p>
+						</div>
+						<div class="col-md-6">
+							<h5>Also Known As (AKA)</h5>
+							<p>Finds close matches of given titles. Useful to find shows in other languages. <span class="pull-right">Data Logic: AND</span></p>
+						</div>
+						<div class="col-md-12">
+							<p class="text-warning">All search strings must be at least 3 characters long</p>
+						</div>
+					  </div>
+					</div>
+				</div>
+			</td>
+		</tr>
+	</tbody>
+  </table>
+  ]]></data>
+</operation>
+</file>
+
+<!-- edit.php -->
+<file>
+    <name>"$DEFAULT_ROOT/torrents.php"</name>
+    <operation>
+      <search><![CDATA[$torrenttpl->set("torrent_search",$trova);]]></search>
+      <action>"add"</action>
+      <where>"after"</where>
+      <data><![CDATA[
+$torrenttpl->set("imdb_id",$imdb_id);
+$torrenttpl->set("imdb_genre",$imdb_genre);
+$torrenttpl->set("imdb_year",$imdb_year);
+$torrenttpl->set("imdb_rating",$imdb_rating);
+$torrenttpl->set("imdb_plot",$imdb_plot);
+$torrenttpl->set("imdb_aka",$imdb_aka);
+$torrenttpl->set("imdb_director",$imdb_director_raw);
+$torrenttpl->set("imdb_writer",$imdb_writer_raw);
+$torrenttpl->set("imdb_cast",$imdb_cast_raw);
+]]></data>
+</operation>
+
+<operation>
+      <search><![CDATA[LEFT JOIN {$TABLE_PREFIX}users_level ul ON u.id_level=ul.id]]></search>
+      <action>"add"</action>
+      <where>"after"</where>
+      <data><![CDATA[ LEFT JOIN {$TABLE_PREFIX}imdb_info imdb ON imdb.id=f.imdb_id ]]></data>
+</operation>
+
+<operation>
+      <search><![CDATA[// end search]]></search>
+      <action>"add"</action>
+      <where>"after"</where>
+      <data><![CDATA[
+
+#################################################################################################################
+##										IMDB Info Search
+#################################################################################################################
+
+if (empty($where)) $where = ' WHERE 1=1';
+
+// IMDB ID
+if (!empty($_GET["imdb_id"]) && strlen($_GET["imdb_id"]) == 7) {
+	$imdb_id = (int)$_GET["imdb_id"];
+	$imdb_id = sprintf('%07d', $imdb_id);
+	
+    $where .= " AND f.imdb_id=$imdb_id";
+}
+
+// IMDB Year
+if (!empty($_GET["imdb_year"]) && strlen($_GET["imdb_year"]) == 4) {
+	$imdb_year = (int)$_GET["imdb_year"];
+	
+    $where .= " AND imdb.year=$imdb_year";
+}
+
+// IMDB Rating
+if (!empty($_GET["imdb_rating"]) && filter_var($_GET["imdb_rating"], FILTER_VALIDATE_FLOAT)) {
+	$imdb_rating = $_GET["imdb_rating"];
+	
+    $where .= " AND imdb.rating>$imdb_rating";
+}
+
+// IMDB Genres
+if (!empty($_GET["imdb_genre"]) && strlen($_GET["imdb_genre"]) > 3) {
+	$imdb_genre = trim($_GET["imdb_genre"]);
+	$imdbGenres = explode(',', $imdb_genre);
+	
+	$tmpGenre = array();
+	foreach($imdbGenres as $gen) {
+		$tmpGenre[] = " imdb.genre LIKE '%" . mysqli_real_escape_string($GLOBALS['conn'], trim($gen)) . "%' ";
+	}
+	$where .= " AND ". implode( ' OR', $tmpGenre);
+}
+
+// IMDB Plot Keywords
+if (!empty($_GET["imdb_plot"]) && strlen($_GET["imdb_plot"]) > 3) {
+	$imdb_plot = trim($_GET["imdb_plot"]);
+	$plotKeys = explode(',', $imdb_plot);
+	
+	$tmpKey = array();
+	foreach($plotKeys as $key) {
+		$tmpKey[] = " imdb.plot_keywords LIKE '%" . mysqli_real_escape_string($GLOBALS['conn'], trim($key)) . "%' ";
+	}
+	$where .= " AND ". implode( ' OR', $tmpKey);
+}
+
+// IMDB Alternative Titles
+if (!empty($_GET["imdb_aka"]) && strlen($_GET["imdb_aka"]) > 3) {
+	$imdb_aka = trim($_GET["imdb_aka"]);
+	$imdb_aka = mysqli_real_escape_string($GLOBALS['conn'], $imdb_aka);
+	
+	$where .= ' AND imdb.aka LIKE \'%' . $imdb_aka .'%\'';
+}
+
+// IMDB Director
+if (!empty($_GET["imdb_director"]) && strlen($_GET["imdb_director"]) > 3) {
+	$imdb_director_raw = mysqli_real_escape_string($GLOBALS['conn'], $_GET["imdb_director"]);
+	$tempDirector = trim(explode(',', $imdb_director_raw));
+	
+	foreach ($tempDirector as $director)
+		$where .= ' AND imdb.directors LIKE \'%' . $director .'%\'';
+}
+
+// IMDB Writer
+if (!empty($_GET["imdb_writer"]) && strlen($_GET["imdb_writer"]) > 3) {
+	$imdb_writer_raw = mysqli_real_escape_string($GLOBALS['conn'], $_GET["imdb_writer"]);
+	$tempWriter = explode(',', $imdb_writer_raw);
+	
+	foreach ($tempWriter as $writer)
+		$where .= ' AND imdb.writers LIKE \'%' . trim($writer) .'%\'';
+}
+
+// IMDB Cast
+if (!empty($_GET["imdb_cast"]) && strlen($_GET["imdb_cast"]) > 3) {
+	$imdb_cast_raw = mysqli_real_escape_string($GLOBALS['conn'], $_GET["imdb_cast"]);
+	$tempCast = explode(',', $imdb_cast_raw);
+	
+	foreach ($tempCast as $cast)
+		$where .= ' AND imdb.cast LIKE \'%' . trim($cast) .'%\'';
+}
+
+#################################################################################################################
+##										/End IMDB Info Search
+#################################################################################################################
+]]></data>
+</operation>
+</file>
+
+<!-- details.php -->
+<file>
+    <name>"$DEFAULT_ROOT/details.php"</name>
+    <operation>
+		<search><![CDATA["SELECT f.info_hash,]]></search>
+		<action>"add"</action>
+		<where>"after"</where>
+		<data><![CDATA[ f.imdb_id, ]]></data>
+	</operation>
+	<operation>
+		  <search><![CDATA[$torrenttpl->set('torrent',$row);]]></search>
+		  <action>"add"</action>
+		  <where>"before"</where>
+		  <data><![CDATA[
+if($row["imdb_id"] > 0) {
+	$imdb_info = '
+        <tr>
+          <td align="right" class="header">IMDB Block</td>
+          <td class="lista" align="center" style="text-align:left;" valign="top">
+			<div id="imdb_info" class="container-fluid">waiting to be loaded...<img alt="loading gif" src="./images/ajax-loader.gif"/></div>
+		  </td>
+        </tr>';
+	$GLOBALS['POS_READY'][] = '
+$("#imdb_info").load("./imdbController.php?imdb_id='. $row['imdb_id'] .'&response=html");
+';
+$torrenttpl->set('imdb_info',$imdb_info);
+}
+]]></data>
+	</operation>
+</file>
+
+<!-- torrent.details.tpl -->
+<file>
+    <name>"$DEFAULT_STYLE_PATH/torrent.details.tpl"</name>
+    <operation>
+		<search><![CDATA[        <tr>
+          <td align="right" class="header"><tag:language.INFO_HASH /></td>]]></search>
+		<action>"add"</action>
+		<where>"before"</where>
+		<data><![CDATA[
+		<!-- IMDB Block -->
+          <tag:imdb_info />
+		<!-- /.IMDB Block -->]]></data>
+	</operation>
+</file>
+
+<!-- upload.php -->
+<file>
+    <name>"$DEFAULT_ROOT/upload.php"</name>
+    <operation>
+		<search><![CDATA[if (isset($_POST["info"]) && $_POST["info"]!="")]]></search>
+		<action>"add"</action>
+		<where>"before"</where>
+		<data><![CDATA[
+if (isset($_POST["imdb_id"]) &&  strlen($_GET["imdb_id"]) == 7)
+    $imdb_id = mysqli_real_escape_string($GLOBALS['conn'],$_POST["imdb_id"]);
+else {
+	$imdb_id = 0;
+}
+]]></data>
+	</operation>
+	<operation>
+		  <search><![CDATA[INSERT INTO {$TABLE_PREFIX}files (info_hash,]]></search>
+		  <action>"add"</action>
+		  <where>"after"</where>
+		  <data><![CDATA[ imdb_id,]]></data>
+	</operation>
+	<operation>
+		  <search><![CDATA[\"$hash\", ]]></search>
+		  <action>"add"</action>
+		  <where>"after"</where>
+		  <data><![CDATA[ \"$imdb_id\",]]></data>
+	</operation>
+</file>
+
+<!-- upload.tpl -->
+<file>
+    <name>"$DEFAULT_STYLE_PATH/upload.tpl"</name> 
+	<operation>
+		  <search><![CDATA[<td class="lista" align="left"><input type="file" id="torrent" name="torrent" /></td>
+    </tr>]]></search>
+		  <action>"add"</action>
+		  <where>"after"</where>
+		  <data><![CDATA[
+    <tr>
+      <td class="header">IMDB ID &nbsp;(optional)&nbsp;<br><span class="text-muted">The numbers after tt in the url.</span></td>
+      <td class="lista" align="left">
+		<div class="input-group input-group-sm col-sm-4">
+		  <span class="input-group-addon" id="imdb_id">tt</span>
+		  <input type="number" name="imdb_id" size="10" min="0000001" max="9999999" class="form-control" placeholder="IMDB ID" aria-describedby="imdb_id">
+		</div>
+	  </td>
+    </tr>
+]]></data>
+	</operation>
+</file>
+
+<!-- upload.php -->
+<file>
+    <name>"$DEFAULT_ROOT/edit.php"</name>
+    <operation>
+		<search><![CDATA[$torhash=AddSlashes($_POST["info_hash"]);]]></search>
+		<action>"add"</action>
+		<where>"after"</where>
+		<data><![CDATA[
+	if (isset($_POST["imdb_id"]) &&  strlen($_GET["imdb_id"]) == 7)
+		$imdb_id = mysqli_real_escape_string($GLOBALS['conn'],$_POST["imdb_id"]);
+	else {
+		err_msg($language["ERROR"],'IMDB ID must be exactly 7 digit long integer');
+		stdfoot();
+		exit();
+	}
+]]></data>
+	</operation>
+	<operation>
+		  <search><![CDATA[do_sqlquery("UPDATE {$TABLE_PREFIX}files SET ]]></search>
+		  <action>"add"</action>
+		  <where>"after"</where>
+		  <data><![CDATA[ imdb_id='$imdb_id',]]></data>
+	</operation>
+	<operation>
+		  <search><![CDATA[$query ="SELECT f.info_hash,]]></search>
+		  <action>"add"</action>
+		  <where>"after"</where>
+		  <data><![CDATA[ f.imdb_id,]]></data>
+	</operation>
+	<operation>
+		  <search><![CDATA[$torrent["info_hash"]=$results["info_hash"];]]></search>
+		  <action>"add"</action>
+		  <where>"after"</where>
+		  <data><![CDATA[
+	$torrent["imdb_id"]=$results["imdb_id"];]]></data>
+	</operation>
+</file>
+
+<!-- edit.tpl -->
+<file>
+    <name>"$DEFAULT_STYLE_PATH/torrent.edit.tpl"</name> 
+	<operation>
+		  <search><![CDATA[<td class="lista"><input type="text" name="name" value="<tag:torrent.filename />" size="60" /></td>
+      </tr>]]></search>
+		  <action>"add"</action>
+		  <where>"after"</where>
+		  <data><![CDATA[
+    <tr>
+      <td class="header">IMDB ID &nbsp;(optional)&nbsp;<br><span class="text-muted">The numbers after tt in the url.</span></td>
+      <td class="lista" align="left">
+		<div class="input-group input-group-sm col-sm-4">
+		  <span class="input-group-addon" id="imdb_id">tt</span>
+		  <input type="number" name="imdb_id" value="<tag:torrent.imdb_id />" size="10" min="0000001" max="9999999" class="form-control" placeholder="IMDB ID" aria-describedby="imdb_id">
+		</div>
+	  </td>
+    </tr>
+]]></data>
+	</operation>
+</file>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Copy files-->
+   <file>
+  <name>"$CURRENT_FOLDER/files/imdbController.php"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT"</where>
+      <data>"imdbController.php"</data>
+    </operation>
+  </file>
+</hack>
