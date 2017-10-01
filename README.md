@@ -40,9 +40,11 @@ if ($oIMDB->isReady) {
     echo $oIMDB->getRecommendations();
 }
 ```
-## Usage with XBTIT
+## Usage with XBTIT: HACK Installation
 
-I'll add a modification.xml file to help you install it using XBTIT's hack installer soon
+1. Download contents of dist into your xbtit Default Root directory/hacks/xbtit-imdb-grabber
+2. Install the hack from XBTIT's Admin CP-> hack installer
+3. Copy contents of dist/imdb-files into your xbtit default root
 
 ## Bugs?
 
