@@ -16,4 +16,3 @@ dist/imdb-files/cache/*.cache
 dist/imdb-files/cache-json/*.json
 dist/imdb-files/cache/*.fullcast
 dist/imdb-files/cache/*.redir
-dist/imdb-files/posters/*
