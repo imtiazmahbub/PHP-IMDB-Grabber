@@ -1,13 +1,37 @@
 <hack>
   <title>XBTIT IMDB Grabber by Imtiaz</title>
   <author>Imtiaz</author>
-  <version>beta.01</version>
+  <version>0.1 beta</version>
 <!-- database -->
 <file>
     <name>"database"</name>
     <operation>
       <action>sql</action>
       <data>ALTER TABLE `{$db_prefix}files` ADD `imdb_id` varchar(10) NOT NULL default '0';</data>
+    </operation>
+    <operation>
+      <action>sql</action>
+      <data>CREATE TABLE `{$db_prefix}imdb_info` (
+  `id` int(11) NOT NULL,
+  `url` varchar(200) NOT NULL,
+  `title` varchar(200) NOT NULL,
+  `year` year(4) DEFAULT NULL,
+  `runtime` varchar(50) DEFAULT NULL,
+  `genre` varchar(200) DEFAULT NULL,
+  `releaseDate` varchar(100) DEFAULT NULL,
+  `rating` float DEFAULT NULL,
+  `votes` int(11) DEFAULT NULL,
+  `poster` varchar(200) DEFAULT NULL,
+  `plot` text,
+  `plot_keywords` varchar(100) DEFAULT NULL,
+  `mpaa` varchar(200) DEFAULT NULL,
+  `aka` text,
+  `seasons` varchar(200) DEFAULT NULL,
+  `directors` varchar(200) DEFAULT NULL,
+  `writers` varchar(200) DEFAULT NULL,
+  `cast` text,
+  `last_update` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;</data>
     </operation>
 </file>
 
@@ -24,9 +48,11 @@
 global $language, $POS_READY]]></data>
 	</operation>
     <operation>
-		<search><![CDATA[// controll if client can handle gzip]]></search>
+		<search><![CDATA[        $tpl->set("main_content",center_menu());
+        break;
+}]]></search>
 		<action>"add"</action>
-		<where>"before"</where>
+		<where>"after"</where>
 		<data><![CDATA[
 $tpl->set("POS_READY", implode(PHP_EOL, $POS_READY));
 ]]></data>
@@ -321,7 +347,7 @@ $torrenttpl->set('imdb_info',$imdb_info);
 		<action>"add"</action>
 		<where>"before"</where>
 		<data><![CDATA[
-if (isset($_POST["imdb_id"]) &&  strlen($_GET["imdb_id"]) == 7)
+if (isset($_POST["imdb_id"]) &&  (int)$_GET["imdb_id"] < 9999999)
     $imdb_id = mysqli_real_escape_string($GLOBALS['conn'],$_POST["imdb_id"]);
 else {
 	$imdb_id = 0;
@@ -372,7 +398,7 @@ else {
 		<action>"add"</action>
 		<where>"after"</where>
 		<data><![CDATA[
-	if (isset($_POST["imdb_id"]) &&  strlen($_GET["imdb_id"]) == 7)
+	if (isset($_POST["imdb_id"]) && (int)$_GET["imdb_id"] < 9999999)
 		$imdb_id = mysqli_real_escape_string($GLOBALS['conn'],$_POST["imdb_id"]);
 	else {
 		err_msg($language["ERROR"],'IMDB ID must be exactly 7 digit long integer');
@@ -424,28 +450,86 @@ else {
 	</operation>
 </file>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <!-- Copy files-->
-   <file>
-  <name>"$CURRENT_FOLDER/files/imdbController.php"</name>
+<file>
+  <name>"$CURRENT_FOLDER/imdb-files/imdbController.php"</name>
     <operation>
       <action>"copy"</action>
       <where>"$DEFAULT_ROOT"</where>
       <data>"imdbController.php"</data>
     </operation>
-  </file>
+</file>
+  
+<file>
+  <name>"$CURRENT_FOLDER/imdb-files/imdb.class.php"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/imdb-files"</where>
+      <data>"imdb.class.php"</data>
+    </operation>
+</file>
+
+<file>
+  <name>"$CURRENT_FOLDER/imdb-files/images/sprites.png"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/imdb-files/images"</where>
+      <data>"sprites.png"</data>
+    </operation>
+</file>
+
+<file>
+  <name>"$CURRENT_FOLDER/imdb-files/images/starstiny.png"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/imdb-files/images"</where>
+      <data>"starstiny.png"</data>
+    </operation>
+</file>
+
+<file>
+  <name>"$CURRENT_FOLDER/imdb-files/posters/not-found.jpg"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/imdb-files/posters"</where>
+      <data>"not-found.jpg"</data>
+    </operation>
+</file>
+
+<file>
+  <name>"$CURRENT_FOLDER/imdb-files/posters/index.php"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/imdb-files/posters"</where>
+      <data>"index.php"</data>
+    </operation>
+</file>
+
+<file>
+  <name>"$CURRENT_FOLDER/imdb-files/cache/index.php"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/imdb-files/cache"</where>
+      <data>"index.php"</data>
+    </operation>
+</file>
+
+<file>
+  <name>"$CURRENT_FOLDER/imdb-files/cache-json/index.php"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/imdb-files/cache-json"</where>
+      <data>"index.php"</data>
+    </operation>
+</file>
+
+<file>
+  <name>"$CURRENT_FOLDER/imdb-files/images/index.php"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/imdb-files/images"</where>
+      <data>"index.php"</data>
+    </operation>
+</file>
+
 </hack>
