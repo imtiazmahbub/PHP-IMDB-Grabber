@@ -1,5 +1,5 @@
 <hack>
-  <title>XBTIT IMDB Grabber by Imtiaz</title>
+  <title>XBTIT IMDB Grabber + Extended Search by Bhorer_Alo</title>
   <author>Imtiaz</author>
   <version>0.1 beta</version>
 <!-- database -->
@@ -70,7 +70,8 @@ $tpl->set("POS_READY", implode(PHP_EOL, $POS_READY));
 	$(document).ready(function(){
 	<tag:POS_READY />
 	});
-	</script>]]></data>
+	</script>
+]]></data>
 	</operation>
 </file>
 
@@ -335,7 +336,8 @@ $torrenttpl->set('imdb_info',$imdb_info);
 		<data><![CDATA[
 		<!-- IMDB Block -->
           <tag:imdb_info />
-		<!-- /.IMDB Block -->]]></data>
+		<!-- /.IMDB Block -->
+]]></data>
 	</operation>
 </file>
 
