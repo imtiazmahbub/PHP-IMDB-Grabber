@@ -37,7 +37,6 @@ define("IMDB_FOLDER",'imdb_files');
 if (!empty($_GET['imdb_id'])){
 	$imdb_id = $_GET['imdb_id'];
 	
-	
 	// check if imdb ID is 7 characters long or die!
 	if (strlen($imdb_id) != 7){
 		echo '<div class="alert alert-danger" role="alert"><span class=text-danger">IMDB ID must be an integer of length: 7</span></div>';
