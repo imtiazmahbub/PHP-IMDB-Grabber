@@ -46,7 +46,7 @@ if (!empty($_GET['imdb_id'])){
 	
 	$imdbInfo = new imdbInfo;
 	$info = $imdbInfo->makeJson($imdb_id);
-	
+
 	if(!empty($_GET['response'])) {
 		$response = $_GET['response'];
 		if($response == 'html') {
